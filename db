@@ -3,15 +3,13 @@ WORDPRESS DATABASE TABLES — INTERVIEW NOTES
 
 Purpose
 -------
-Quick revision notes for understanding WordPress database tables and preparing
-for WordPress developer interviews. Language: Bengali explanations with English
+Quick revision notes for understanding WordPress database tables and preparing for WordPress developer interviews. Language: Bengali explanations with English
 technical terms.
 
 1. WHAT IS A WORDPRESS DATABASE?
 --------------------------------
-WordPress is a Content Management System (CMS). It generally uses MySQL or
-MariaDB to store website data, including posts, pages, users, comments,
-categories, and settings.
+WordPress is a Content Management System (CMS). It generally uses MySQL or MariaDB to store website data, including posts, pages, users, comments, categories,
+and settings.
 
 Basic terms:
 - Database: Stores website data.
@@ -21,8 +19,7 @@ Basic terms:
 
 2. THE 12 CORE WORDPRESS TABLES
 -------------------------------
-A traditional single-site WordPress installation generally has these 12 core
-tables. The exact tables can vary by WordPress version, configuration, and
+A traditional single-site WordPress installation generally has these 12 core tables. The exact tables can vary by WordPress version, configuration, and
 multisite setup. Plugins and themes may create additional tables.
 
 1. wp_posts
