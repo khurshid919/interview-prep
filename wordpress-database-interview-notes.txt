@@ -1,0 +1,305 @@
+WORDPRESS DATABASE TABLES — INTERVIEW NOTES
+============================================
+
+Purpose
+-------
+Quick revision notes for understanding WordPress database tables and preparing
+for WordPress developer interviews. Language: Bengali explanations with English
+technical terms.
+
+1. WHAT IS A WORDPRESS DATABASE?
+--------------------------------
+WordPress is a Content Management System (CMS). It generally uses MySQL or
+MariaDB to store website data, including posts, pages, users, comments,
+categories, and settings.
+
+Basic terms:
+- Database: Stores website data.
+- Table: Stores a particular type of data.
+- Row: One record in a table.
+- Column: A field in a record.
+
+2. THE 12 CORE WORDPRESS TABLES
+-------------------------------
+A traditional single-site WordPress installation generally has these 12 core
+tables. The exact tables can vary by WordPress version, configuration, and
+multisite setup. Plugins and themes may create additional tables.
+
+1. wp_posts
+   Stores posts, pages, attachments, revisions, and custom post types.
+
+2. wp_postmeta
+   Stores additional metadata associated with posts and pages.
+   Important columns: meta_id, post_id, meta_key, meta_value.
+
+3. wp_users
+   Stores basic user account information, such as username, email, and
+   display name.
+
+4. wp_usermeta
+   Stores additional user information, including role and capabilities data.
+
+5. wp_comments
+   Stores comments and related records such as pingbacks and trackbacks.
+
+6. wp_commentmeta
+   Stores additional metadata associated with comments.
+
+7. wp_terms
+   Stores taxonomy term names and slugs, such as category and tag names.
+
+8. wp_term_taxonomy
+   Identifies the taxonomy type of a term, such as category, post_tag, or a
+   custom taxonomy.
+
+9. wp_term_relationships
+   Connects posts or other objects to taxonomy terms.
+
+10. wp_options
+    Stores site-wide settings and options, such as the site title, URLs, and
+    various plugin settings.
+
+11. wp_links
+    Legacy table associated with the old WordPress Link Manager.
+
+12. wp_termmeta
+    Stores additional metadata associated with taxonomy terms.
+
+IMPORTANT: "wp_" is the default table prefix, not a guarantee. A website may
+use a different prefix, such as "site_" or "abc_". Use the actual prefix for
+your installation.
+
+3. IMPORTANT TABLES — QUICK REVISION
+-----------------------------------
+
+wp_posts
+- Stores posts, pages, attachments, revisions, and custom post types.
+- Important columns: ID, post_author, post_title, post_content, post_status,
+  post_name, post_type, post_parent, post_date, post_modified.
+- Posts and pages are stored in the same table and distinguished by post_type.
+
+wp_postmeta
+- Stores additional key-value metadata for a post.
+- Important columns: meta_id, post_id, meta_key, meta_value.
+
+wp_users and wp_usermeta
+- wp_users stores basic account details.
+- wp_usermeta stores extra user data, including role/capabilities metadata.
+
+wp_comments and wp_commentmeta
+- wp_comments stores comment records.
+- wp_commentmeta stores additional comment metadata.
+
+wp_options
+- Stores site-wide configuration and options.
+- Important columns: option_id, option_name, option_value, autoload.
+- Be careful when modifying or deleting options; incorrect changes can affect
+  the website.
+
+Taxonomy tables
+- wp_terms: Term name and slug.
+- wp_term_taxonomy: Taxonomy type, description, parent, and count.
+- wp_term_relationships: Relationship between an object and a taxonomy term.
+- wp_termmeta: Additional term metadata.
+
+4. IMPORTANT DATABASE RELATIONSHIPS
+----------------------------------
+- User -> Posts:
+  wp_users.ID = wp_posts.post_author
+
+- Post -> Post metadata:
+  wp_posts.ID = wp_postmeta.post_id
+
+- Post -> Comments:
+  wp_posts.ID = wp_comments.comment_post_ID
+
+- User -> User metadata:
+  wp_users.ID = wp_usermeta.user_id
+
+- Comment -> Comment metadata:
+  wp_comments.comment_ID = wp_commentmeta.comment_id
+
+- Post/object -> Taxonomy relationship:
+  wp_posts.ID = wp_term_relationships.object_id
+
+Taxonomy is commonly connected through:
+wp_terms -> wp_term_taxonomy -> wp_term_relationships
+
+These are logical relationships. Not every relationship is enforced by a
+database-level foreign key constraint.
+
+5. USEFUL SQL QUERIES
+---------------------
+NOTE: Replace "wp_" with the actual table prefix used by your installation.
+Run SELECT queries first. Be especially careful with UPDATE and DELETE queries
+on a production database.
+
+A. Show tables in the selected database
+---------------------------------------
+SHOW TABLES;
+
+B. Fetch published posts
+------------------------
+SELECT ID, post_title, post_date
+FROM wp_posts
+WHERE post_type = 'post'
+  AND post_status = 'publish';
+
+C. Fetch published pages
+------------------------
+SELECT ID, post_title
+FROM wp_posts
+WHERE post_type = 'page'
+  AND post_status = 'publish';
+
+D. Fetch users
+--------------
+SELECT ID, user_login, user_email
+FROM wp_users;
+
+E. Fetch metadata for post ID 101
+---------------------------------
+SELECT meta_key, meta_value
+FROM wp_postmeta
+WHERE post_id = 101;
+
+F. Fetch website title and URLs
+-------------------------------
+SELECT option_name, option_value
+FROM wp_options
+WHERE option_name IN ('blogname', 'home', 'siteurl');
+
+G. Fetch posts with author names
+--------------------------------
+SELECT p.ID, p.post_title, u.display_name AS author_name
+FROM wp_posts AS p
+JOIN wp_users AS u
+  ON p.post_author = u.ID
+WHERE p.post_type = 'post';
+
+H. Fetch comments for post ID 101
+---------------------------------
+SELECT comment_ID, comment_author, comment_content
+FROM wp_comments
+WHERE comment_post_ID = 101;
+
+I. Fetch posts with category names
+----------------------------------
+SELECT p.ID, p.post_title, t.name AS category_name
+FROM wp_posts AS p
+JOIN wp_term_relationships AS tr
+  ON p.ID = tr.object_id
+JOIN wp_term_taxonomy AS tt
+  ON tr.term_taxonomy_id = tt.term_taxonomy_id
+JOIN wp_terms AS t
+  ON tt.term_id = t.term_id
+WHERE p.post_type = 'post'
+  AND tt.taxonomy = 'category';
+
+6. TOP INTERVIEW QUESTIONS AND SHORT ANSWERS
+--------------------------------------------
+
+Q1. What is a WordPress database?
+A. It stores website data such as posts, pages, users, comments, and settings.
+   WordPress commonly uses MySQL or MariaDB.
+
+Q2. How many core tables does WordPress have?
+A. A traditional single-site installation generally has 12 core tables.
+   The exact number may vary by version, configuration, and multisite setup.
+
+Q3. Which table stores posts and pages?
+A. wp_posts. The post_type column distinguishes posts, pages, and other types.
+
+Q4. What is the difference between wp_posts and wp_postmeta?
+A. wp_posts stores the main content record. wp_postmeta stores additional
+   key-value metadata associated with that record.
+
+Q5. Where are WordPress users stored?
+A. Basic account details are stored in wp_users. Additional information,
+   including role and capabilities metadata, is generally stored in wp_usermeta.
+
+Q6. Where are website settings stored?
+A. Most core site-wide settings are stored in wp_options.
+
+Q7. How are categories and tags managed?
+A. wp_terms stores term names and slugs, wp_term_taxonomy identifies the
+   taxonomy, and wp_term_relationships connects objects to terms.
+
+Q8. What is a database table prefix?
+A. It is the string at the beginning of table names, such as wp_. The actual
+   prefix is configured in wp-config.php through the $table_prefix setting.
+
+Q9. Where are uploaded images stored?
+A. Image files are generally stored in wp-content/uploads. Their attachment
+   records and metadata may be stored in wp_posts and wp_postmeta.
+
+Q10. How can you improve database performance?
+A. Investigate slow queries, use appropriate indexes, review autoloaded
+   options, use suitable caching, and perform careful database maintenance.
+
+Q11. Does WordPress use foreign keys for every table relationship?
+A. No. Many relationships are managed by WordPress application logic and are
+   not enforced through database-level foreign key constraints.
+
+Q12. How do you back up a WordPress database?
+A. Use a trusted hosting backup tool, phpMyAdmin, WP-CLI, or another suitable
+   tool. Store the backup securely and test restoration. A database backup
+   alone does not include uploaded media files or all WordPress files.
+
+7. IMPORTANT DIFFERENCES
+------------------------
+wp_posts vs wp_postmeta
+- Main content record vs additional post metadata.
+
+wp_users vs wp_usermeta
+- Basic account information vs additional user metadata.
+
+wp_options vs wp_postmeta
+- Site-wide settings vs metadata associated with a particular post.
+
+Post vs Page
+- Both are stored in wp_posts but have different post_type values.
+
+Database vs Filesystem
+- The database stores records and metadata. Uploaded media files are generally
+  stored on the filesystem, often in wp-content/uploads.
+
+8. PRACTICAL WORKFLOW
+---------------------
+1. Open phpMyAdmin or another database client.
+2. Select the WordPress database.
+3. Check the table names and identify the actual table prefix.
+4. Practice SELECT queries on a local or staging website.
+5. Practice JOIN queries to connect posts, authors, comments, and categories.
+6. Learn how to export and restore a database.
+7. Do not run destructive queries on a production site without a verified
+   backup and a clear reason.
+
+9. ONE-MINUTE INTERVIEW ANSWER
+------------------------------
+"WordPress uses MySQL or MariaDB to store website data. A traditional
+single-site installation generally contains 12 core database tables.
+
+The most important table is wp_posts, which stores posts, pages, and other
+post types. wp_postmeta stores additional metadata. wp_users and wp_usermeta
+manage user information. wp_comments stores comments, while wp_options stores
+site-wide settings.
+
+WordPress uses wp_terms, wp_term_taxonomy, and wp_term_relationships to manage
+categories, tags, and their relationships with posts. The other core tables
+include wp_commentmeta, wp_termmeta, and the legacy wp_links table. Together,
+these tables help WordPress manage content, users, taxonomy, and configuration."
+
+10. FINAL REVISION CHECKLIST
+----------------------------
+[ ] I can name the 12 core tables.
+[ ] I understand wp_posts and wp_postmeta.
+[ ] I understand wp_users and wp_usermeta.
+[ ] I understand the three main taxonomy tables.
+[ ] I know what wp_options stores.
+[ ] I can write at least three SELECT queries.
+[ ] I can use JOIN to fetch a post and its author.
+[ ] I understand the importance of database backups.
+
+END OF NOTES
+============
