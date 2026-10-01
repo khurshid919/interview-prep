@@ -1,0 +1,622 @@
+MYSQL INTERVIEW QUESTIONS & ANSWERS
+===================================
+
+বাংলায় সহজ ব্যাখ্যা + Interview-ready English answers
+Level: Beginner to Intermediate, with selected advanced topics
+Purpose: MySQL interview preparation for WordPress and web development roles
+
+CONTENTS
+--------
+1. MySQL Basics
+2. SQL Command Types
+3. Keys and Constraints
+4. Data Types
+5. SELECT Queries and Filtering
+6. Aggregate Functions and GROUP BY
+7. SQL JOINs
+8. Subqueries
+9. Indexes and Performance
+10. Relationships and Normalization
+11. Transactions
+12. WordPress + MySQL Questions
+13. Practical SQL Exercises
+14. Quick Revision Sheet
+
+1. MYSQL BASICS
+---------------
+
+Q1. What is MySQL?
+Answer:
+MySQL is a relational database management system (RDBMS) that uses SQL
+(Structured Query Language) to store, retrieve, and manage structured data.
+
+সহজ বাংলা:
+MySQL হলো database management system। Website-এর users, posts, orders,
+products ইত্যাদি data table আকারে রাখতে ও query করতে এটি ব্যবহার করা হয়।
+
+Q2. What is a database?
+Answer:
+A database is an organized collection of data that can be stored, accessed,
+managed, and updated.
+
+Q3. What is a table?
+Answer:
+A table stores related data in rows and columns. Each row represents a record,
+and each column represents a field or attribute.
+
+Q4. What is SQL?
+Answer:
+SQL stands for Structured Query Language. It is used to create, read, update,
+and delete data in relational databases.
+
+Q5. What is the difference between MySQL and SQL?
+Answer:
+SQL is a language used to work with relational databases. MySQL is a database
+management system that uses SQL.
+
+Q6. What is a relational database?
+Answer:
+A relational database organizes data into tables and connects related tables
+using keys and relationships.
+
+Q7. What is NULL?
+Answer:
+NULL represents a missing or unknown value. It is different from zero, an empty
+string, or the text 'NULL'. Use IS NULL or IS NOT NULL to test for NULL.
+
+Example:
+SELECT * FROM employees WHERE manager_id IS NULL;
+
+Q8. What is the difference between CHAR and VARCHAR?
+Answer:
+CHAR is fixed-length character storage, while VARCHAR stores variable-length
+character data up to a defined maximum. The best choice depends on the data and
+the database design.
+
+Q9. What is the difference between DELETE, TRUNCATE, and DROP?
+Answer:
+- DELETE removes selected rows and can use a WHERE clause.
+- TRUNCATE removes all rows from a table and does not support WHERE.
+- DROP removes the table itself, including its structure.
+Exact transaction and identity-reset behavior depends on the MySQL version and
+storage engine. Be careful with destructive commands.
+
+Q10. What is a schema?
+Answer:
+In MySQL, schema is commonly used as a synonym for database.
+
+2. SQL COMMAND TYPES
+--------------------
+
+Q11. What are DDL, DML, DQL, DCL, and TCL?
+
+- DDL (Data Definition Language): Defines database objects.
+  Examples: CREATE, ALTER, DROP, TRUNCATE.
+- DML (Data Manipulation Language): Changes data.
+  Examples: INSERT, UPDATE, DELETE.
+- DQL (Data Query Language): Retrieves data.
+  Example: SELECT.
+- DCL (Data Control Language): Manages privileges.
+  Examples: GRANT, REVOKE.
+- TCL (Transaction Control Language): Controls transactions.
+  Examples: COMMIT, ROLLBACK, SAVEPOINT.
+
+Note: Some learning materials classify SELECT under DML rather than DQL.
+
+Q12. What is the difference between INSERT, UPDATE, and DELETE?
+Answer:
+INSERT adds new rows, UPDATE changes existing rows, and DELETE removes rows.
+
+Examples:
+INSERT INTO employees (name, salary)
+VALUES ('Rina', 35000);
+
+UPDATE employees
+SET salary = 38000
+WHERE name = 'Rina';
+
+DELETE FROM employees
+WHERE name = 'Rina';
+
+Safety tip: Always check the WHERE clause before running UPDATE or DELETE.
+
+3. KEYS AND CONSTRAINTS
+-----------------------
+
+Q13. What is a primary key?
+Answer:
+A primary key uniquely identifies each row in a table. It must be unique and
+cannot contain NULL values.
+
+Q14. What is a foreign key?
+Answer:
+A foreign key links a column or set of columns in one table to a key in another
+table, helping enforce referential integrity when supported and configured.
+
+Q15. What is a unique key?
+Answer:
+A UNIQUE constraint prevents duplicate values in a column or column combination.
+NULL handling can differ depending on the database and index definition; MySQL
+normally permits multiple NULL values in a UNIQUE index.
+
+Q16. What is a candidate key?
+Answer:
+A candidate key is a minimal column or set of columns that can uniquely identify
+a row. One candidate key is selected as the primary key.
+
+Q17. What is a composite key?
+Answer:
+A composite key uses two or more columns together to identify a row uniquely.
+
+Example:
+PRIMARY KEY (student_id, course_id)
+
+Q18. What are constraints?
+Answer:
+Constraints enforce rules on table data. Common constraints include:
+- PRIMARY KEY
+- FOREIGN KEY
+- UNIQUE
+- NOT NULL
+- DEFAULT
+- CHECK
+
+Q19. What is AUTO_INCREMENT?
+Answer:
+AUTO_INCREMENT automatically generates a new numeric value when a row is
+inserted without an explicit value for that column. It is commonly used for
+integer ID columns.
+
+4. MYSQL DATA TYPES
+-------------------
+
+Q20. Name common MySQL data types.
+
+Numeric:
+- INT: Whole numbers.
+- BIGINT: Larger whole numbers.
+- DECIMAL(p,s): Exact decimal values, useful for money.
+- FLOAT / DOUBLE: Approximate floating-point values.
+
+String:
+- CHAR: Fixed-length character data.
+- VARCHAR: Variable-length character data.
+- TEXT: Longer text.
+- ENUM: One value from a predefined list.
+
+Date and time:
+- DATE: Date only.
+- TIME: Time only.
+- DATETIME: Date and time.
+- TIMESTAMP: Date and time with time-zone-related conversion behavior.
+
+Q21. Why use DECIMAL for money instead of FLOAT?
+Answer:
+DECIMAL stores exact decimal values within its defined precision, while FLOAT
+uses approximate binary floating-point representation. DECIMAL is generally
+preferred for monetary amounts when exact decimal arithmetic is required.
+
+5. SELECT QUERIES AND FILTERING
+-------------------------------
+
+Use this sample table for the examples:
+
+employees
++----+--------+------------+--------+
+| id | name   | department | salary |
++----+--------+------------+--------+
+| 1  | Asha   | IT         | 50000  |
+| 2  | Rahim  | HR         | 35000  |
+| 3  | Mina   | IT         | 60000  |
+| 4  | Rafi   | Sales      | 40000  |
++----+--------+------------+--------+
+
+Q22. How do you retrieve all rows?
+SELECT * FROM employees;
+
+Q23. How do you filter rows?
+SELECT * FROM employees
+WHERE salary > 40000;
+
+Q24. What is the difference between WHERE and HAVING?
+Answer:
+WHERE filters individual rows before grouping. HAVING filters grouped results
+after GROUP BY.
+
+Q25. What does ORDER BY do?
+Answer:
+ORDER BY sorts query results. ASC means ascending order and DESC means
+descending order.
+
+SELECT * FROM employees
+ORDER BY salary DESC;
+
+Q26. What does LIMIT do?
+Answer:
+LIMIT restricts the number of rows returned.
+
+SELECT * FROM employees
+ORDER BY salary DESC
+LIMIT 2;
+
+Q27. What is DISTINCT?
+Answer:
+DISTINCT removes duplicate result rows.
+
+SELECT DISTINCT department
+FROM employees;
+
+Q28. What is LIKE?
+Answer:
+LIKE matches a string pattern. '%' matches zero or more characters; '_' matches
+a single character.
+
+SELECT * FROM employees
+WHERE name LIKE 'A%';
+
+Q29. What is BETWEEN?
+Answer:
+BETWEEN checks whether a value falls within an inclusive range.
+
+SELECT * FROM employees
+WHERE salary BETWEEN 35000 AND 50000;
+
+Q30. What is the difference between IN and EXISTS?
+Answer:
+IN checks whether a value matches a value in a list or subquery result. EXISTS
+checks whether a subquery returns at least one row. The optimizer may transform
+these queries; choose the clearest correct form and check performance if needed.
+
+Q31. What is the correct way to compare NULL?
+Answer:
+Use IS NULL or IS NOT NULL, not = NULL.
+
+6. AGGREGATE FUNCTIONS AND GROUP BY
+-----------------------------------
+
+Q32. What are aggregate functions?
+Answer:
+Aggregate functions calculate a result from multiple rows. Common examples are
+COUNT(), SUM(), AVG(), MIN(), and MAX().
+
+Examples:
+SELECT COUNT(*) FROM employees;
+SELECT AVG(salary) FROM employees;
+SELECT MAX(salary) FROM employees;
+
+Q33. What does GROUP BY do?
+Answer:
+GROUP BY groups rows with the same value so aggregate functions can calculate
+results for each group.
+
+SELECT department, AVG(salary) AS average_salary
+FROM employees
+GROUP BY department;
+
+Q34. What is the difference between COUNT(*) and COUNT(column)?
+Answer:
+COUNT(*) counts rows. COUNT(column) counts rows where that column is not NULL.
+
+Q35. Can WHERE and HAVING be used together?
+Answer:
+Yes. WHERE filters rows before grouping, and HAVING filters groups after
+aggregation.
+
+SELECT department, AVG(salary) AS average_salary
+FROM employees
+WHERE salary >= 35000
+GROUP BY department
+HAVING AVG(salary) > 40000;
+
+7. SQL JOINS
+------------
+
+Q36. What is a JOIN?
+Answer:
+A JOIN combines related rows from two or more tables based on a join condition.
+
+Assume:
+employees(id, name, department_id)
+departments(id, department_name)
+
+INNER JOIN:
+SELECT e.name, d.department_name
+FROM employees AS e
+INNER JOIN departments AS d
+  ON e.department_id = d.id;
+
+Q37. What is INNER JOIN?
+Answer:
+INNER JOIN returns only rows that match the join condition in both tables.
+
+Q38. What is LEFT JOIN?
+Answer:
+LEFT JOIN returns all rows from the left table and matching rows from the
+right table. If no match exists, right-table columns are NULL.
+
+SELECT e.name, d.department_name
+FROM employees AS e
+LEFT JOIN departments AS d
+  ON e.department_id = d.id;
+
+Q39. What is RIGHT JOIN?
+Answer:
+RIGHT JOIN returns all rows from the right table and matching rows from the
+left table. Unmatched left-table columns are NULL.
+
+Q40. What is CROSS JOIN?
+Answer:
+CROSS JOIN returns the Cartesian product: every row from one table paired with
+every row from the other table.
+
+Q41. What is a SELF JOIN?
+Answer:
+A self join joins a table to itself, often to represent hierarchical data such
+as employees and their managers.
+
+SELECT e.name AS employee, m.name AS manager
+FROM employees AS e
+LEFT JOIN employees AS m
+  ON e.manager_id = m.id;
+
+8. SUBQUERIES
+-------------
+
+Q42. What is a subquery?
+Answer:
+A subquery is a query nested inside another SQL statement.
+
+Example: employees earning more than the average salary:
+SELECT name, salary
+FROM employees
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees
+);
+
+Q43. What is a correlated subquery?
+Answer:
+A correlated subquery refers to a value from the outer query. Conceptually, its
+result depends on the current outer row, though the optimizer may rewrite it.
+
+9. INDEXES AND PERFORMANCE
+--------------------------
+
+Q44. What is an index?
+Answer:
+An index is a data structure that helps MySQL find rows more efficiently. It
+can improve reads but uses storage and can add overhead to INSERT, UPDATE, and
+DELETE operations.
+
+Q45. What is the difference between a primary index and a secondary index?
+Answer:
+The primary key identifies rows and is the clustered index in InnoDB. Secondary
+indexes are additional indexes used to support other lookup and sorting needs.
+In InnoDB, secondary index entries also contain the primary key.
+
+Q46. What is a composite index?
+Answer:
+A composite index contains more than one column. Column order matters because
+MySQL can generally use the leftmost prefix of the index efficiently.
+
+Example:
+CREATE INDEX idx_department_salary
+ON employees (department, salary);
+
+Q47. What is EXPLAIN?
+Answer:
+EXPLAIN shows the query execution plan, helping you understand how MySQL may
+access tables and use indexes.
+
+Example:
+EXPLAIN
+SELECT * FROM employees
+WHERE department = 'IT';
+
+Q48. How can you optimize a slow query?
+Answer:
+- Inspect the query with EXPLAIN.
+- Add suitable indexes based on query patterns.
+- Avoid fetching unnecessary columns.
+- Filter rows appropriately.
+- Review JOIN conditions and data types.
+- Check table size, query plans, and application-level caching.
+- Measure changes before and after optimization.
+
+Q49. What is a full table scan?
+Answer:
+A full table scan reads the table rows to find matching records. It may be
+reasonable for small tables or queries that need many rows, but can be costly
+for large tables.
+
+10. RELATIONSHIPS AND NORMALIZATION
+-----------------------------------
+
+Q50. What are the main database relationships?
+Answer:
+- One-to-one: One record relates to one record.
+- One-to-many: One record relates to many records.
+- Many-to-many: Many records relate to many records, commonly using a junction
+  table.
+
+Q51. What is normalization?
+Answer:
+Normalization organizes relational data to reduce unnecessary duplication and
+update anomalies.
+
+Q52. What are 1NF, 2NF, and 3NF?
+Answer:
+- First Normal Form (1NF): Each field contains an atomic value and rows can be
+  identified appropriately.
+- Second Normal Form (2NF): The table is in 1NF and non-key attributes depend
+  on the whole candidate key, not just part of a composite key.
+- Third Normal Form (3NF): The table is in 2NF and non-key attributes do not
+  have inappropriate transitive dependencies on candidate keys.
+
+In practice, database design balances normalization, query requirements, and
+maintainability.
+
+11. TRANSACTIONS
+----------------
+
+Q53. What is a transaction?
+Answer:
+A transaction is a group of database operations treated as one logical unit.
+
+Q54. What are ACID properties?
+Answer:
+- Atomicity: All operations succeed or the transaction is rolled back.
+- Consistency: The transaction preserves defined database rules.
+- Isolation: Concurrent transactions are isolated according to the chosen
+  isolation level.
+- Durability: Committed changes persist according to the storage system's
+  guarantees.
+
+Q55. What do COMMIT and ROLLBACK do?
+Answer:
+COMMIT makes the transaction's changes permanent. ROLLBACK undoes uncommitted
+changes within the transaction, subject to engine and statement behavior.
+
+Example:
+START TRANSACTION;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;
+
+Use transactions with a transactional storage engine such as InnoDB.
+
+12. WORDPRESS + MYSQL INTERVIEW QUESTIONS
+-----------------------------------------
+
+Q56. Which database systems does WordPress commonly use?
+Answer:
+WordPress commonly uses MySQL or MariaDB.
+
+Q57. Where are WordPress posts and pages stored?
+Answer:
+In the wp_posts table, distinguished by the post_type column.
+
+Q58. What does wp_postmeta store?
+Answer:
+Additional metadata related to posts and pages, using post_id, meta_key, and
+meta_value.
+
+Q59. Where are WordPress users stored?
+Answer:
+Basic account information is in wp_users. Additional information, including
+roles and capabilities metadata, is generally in wp_usermeta.
+
+Q60. Where are WordPress settings stored?
+Answer:
+Core site-wide options are generally stored in wp_options.
+
+Q61. What is the WordPress database prefix?
+Answer:
+It is the prefix at the beginning of table names. The default is wp_, but a
+site may use a different prefix configured through $table_prefix in
+wp-config.php.
+
+Q62. How do you safely change WordPress database data?
+Answer:
+Prefer WordPress APIs when appropriate. Back up the database first, test on a
+staging environment, use prepared statements for variable input, and avoid
+unreviewed destructive SQL in production.
+
+Q63. What is SQL injection?
+Answer:
+SQL injection is a security vulnerability in which untrusted input changes the
+meaning of a SQL query. Prevent it by using prepared statements, parameterized
+queries, and appropriate input validation. In WordPress, use APIs such as
+$wpdb->prepare() correctly for SQL queries that include variable values.
+
+Q64. Does a database backup include uploaded images?
+Answer:
+Usually not. A database backup contains database records, while uploaded image
+files are generally in wp-content/uploads. A full site backup should include
+both the database and required files.
+
+13. PRACTICAL SQL EXERCISES
+---------------------------
+
+Use a practice database, not production data, for these exercises.
+
+Exercise 1: Find employees earning more than 40,000.
+SELECT * FROM employees
+WHERE salary > 40000;
+
+Exercise 2: Sort employees by salary, highest first.
+SELECT * FROM employees
+ORDER BY salary DESC;
+
+Exercise 3: Count employees in each department.
+SELECT department, COUNT(*) AS employee_count
+FROM employees
+GROUP BY department;
+
+Exercise 4: Find the average salary.
+SELECT AVG(salary) AS average_salary
+FROM employees;
+
+Exercise 5: Find employees earning more than average.
+SELECT name, salary
+FROM employees
+WHERE salary > (SELECT AVG(salary) FROM employees);
+
+Exercise 6: Join employees to departments.
+SELECT e.name, d.department_name
+FROM employees AS e
+JOIN departments AS d
+  ON e.department_id = d.id;
+
+Exercise 7: Find departments with more than five employees.
+SELECT department_id, COUNT(*) AS employee_count
+FROM employees
+GROUP BY department_id
+HAVING COUNT(*) > 5;
+
+Exercise 8: Find rows where a manager is not assigned.
+SELECT * FROM employees
+WHERE manager_id IS NULL;
+
+14. QUICK REVISION SHEET
+------------------------
+
+- MySQL: Relational database management system.
+- SQL: Language used to query and manage relational databases.
+- Primary key: Uniquely identifies each row; cannot be NULL.
+- Foreign key: Helps enforce relationships between tables.
+- UNIQUE: Prevents duplicate non-NULL key values; MySQL permits multiple NULLs
+  in a UNIQUE index in typical configurations.
+- WHERE: Filters rows before grouping.
+- HAVING: Filters grouped results.
+- GROUP BY: Groups rows for aggregate calculations.
+- ORDER BY: Sorts results.
+- JOIN: Combines related data from tables.
+- INNER JOIN: Only matching rows.
+- LEFT JOIN: All left rows plus matching right rows.
+- COUNT(*): Counts rows.
+- COUNT(column): Counts non-NULL values in that column.
+- Index: Can speed up reads but adds storage and write overhead.
+- EXPLAIN: Helps inspect a query plan.
+- Normalization: Reduces avoidable duplication and anomalies.
+- ACID: Atomicity, Consistency, Isolation, Durability.
+- COMMIT: Finalizes a transaction.
+- ROLLBACK: Undoes uncommitted transactional changes.
+- SQL injection: Prevent with parameterized/prepared queries.
+
+INTERVIEW PREPARATION CHECKLIST
+-------------------------------
+[ ] I can explain MySQL, SQL, databases, tables, rows, and columns.
+[ ] I understand primary keys, foreign keys, and constraints.
+[ ] I can write SELECT, WHERE, ORDER BY, and LIMIT queries.
+[ ] I understand GROUP BY, HAVING, and aggregate functions.
+[ ] I can explain and write INNER JOIN and LEFT JOIN.
+[ ] I understand subqueries, indexes, and EXPLAIN.
+[ ] I can explain normalization and ACID.
+[ ] I understand how WordPress uses MySQL/MariaDB.
+[ ] I know the purpose of wp_posts, wp_postmeta, wp_users, wp_usermeta,
+    wp_options, and the taxonomy tables.
+[ ] I know how to avoid SQL injection and protect production data.
+
+END OF NOTES
+============
